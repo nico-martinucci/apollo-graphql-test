@@ -9,7 +9,7 @@ import axios from 'axios';
 const BASE_URL = 'https://users-messages-gql.herokuapp.com/graphql';
 
 const client = new ApolloClient({
-  uri: 'https://users-messages-gql.herokuapp.com/graphql', // 
+  uri: 'https://users-messages-gql.herokuapp.com/graphql', //
   cache: new InMemoryCache(),
 });
 
@@ -54,7 +54,67 @@ async function getUsers() {
   return resp.data.data.users;
 }
 
+async function getAUser(username) {
+  const userQuery = `
+  query GetUser {
+    user(username: "${username}") {
+      username,
+      first_name,
+      last_name
+    }
+  }
+`
+  const resp = await axios(
+    {
+      url: BASE_URL,
+      method: "POST",
+      data: {
+        query: userQuery
+      },
+    }
+  )
+
+  console.log(resp.data.data.user);
+
+  return resp.data.data.user;
+}
+
+async function createAUser({username, firstName, lastName}) {
+  const userMutation = `
+  mutation CreateUser {
+    createUser(username: "${username}", first_name: "${firstName}", last_name: "${lastName}") {
+      username,
+      first_name,
+      last_name,
+      messages {
+        id,
+        body
+      }
+    }
+  }
+`
+  const resp = await axios(
+    {
+      url: BASE_URL,
+      method: "POST",
+      data: {
+        query: userMutation
+      },
+    }
+  )
+
+  console.log(resp.data.data.createUser);
+
+  return resp.data.data.createUser;
+}
+
 getUsers();
+getAUser('david');
+// createAUser({
+//   username: 'nico',
+//   firstName: 'n',
+//   lastName: 'ico'
+// });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
